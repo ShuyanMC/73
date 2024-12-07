@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0; /* 灰白色背景 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .quiz-container {
+    width: 80%;
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .question {
+    margin-bottom: 20px;
+  }
+  .question h3 {
+    margin-bottom: 10px;
+  }
+  .options {
+    list-style: none;
+    padding: 0;
+  }
+  .options li {
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .options li:hover {
+    color: #4CAF50;
+  }
+  .next-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  .next-button:hover {
+    background-color: #45a049;
+  }
+  .timer {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div id="quiz"></div>
+  <div class="timer">倒计时: <span id="timer">600</span> 秒</div>
+  <button class="next-button" onclick="nextQuestion()">下一题</button>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "What does 'hello' mean in English?",
+      options: ["Goodbye", "Hello", "Thank you", "I'm sorry"],
+      answer: 1
+    },
+    {
+      question: "What is the correct way to say '再见' in English?",
+      options: ["See you", "Bye", "Hello", "Hi"],
+      answer: 1
+    },
+    // Add more questions here
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let timeRemaining = 600; // 10 minutes in seconds
+  let timerInterval;
+
+  function loadQuestion() {
+    const quizDiv = document.getElementById('quiz');
+    const question = quizData[currentQuestion];
+    quizDiv.innerHTML = `<h3>${question.question}</h3><ul class="options">`;
+
+    question.options.forEach((option, index) => {
+      quizDiv.innerHTML += `<li onclick="checkAnswer(${index})">${option}</li>`;
+    });
+
+    quizDiv.innerHTML += `</ul>`;
+  }
+
+  function checkAnswer(optionIndex) {
+    if (optionIndex === quizData[currentQuestion].answer) {
+      score++;
+    }
+
+    currentQuestion++;
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      endQuiz();
+    }
+  }
+
+  function nextQuestion() {
+    checkAnswer(-1); // -1 indicates that the user skipped the question
+  }
+
+  function updateTimer() {
+    timeRemaining--;
+    document.getElementById('timer').textContent = timeRemaining;
+    if (timeRemaining <= 0) {
+      endQuiz();
+    }
+  }
+
+  function endQuiz() {
+    alert(`Quiz completed! Your score: ${score}/${quizData.length}. Your accuracy: ${(score / quizData.length * 100).toFixed(2)}%`);
+    clearInterval(timerInterval);
+    // Redirect to python.html after the alert is dismissed
+    window.location.href = 'python.html';
+  }
+
+  function startQuiz() {
+    loadQuestion();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  startQuiz();
+</script>
+
+</body>
+</html>

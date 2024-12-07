@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="box">
+            <h2>登录</h2>
+            <div class="input-box">
+                <label>账号</label>
+                <input type="text" id="username"/>
+                <div id="username-error" class="error-message"></div>
+            </div>
+            <div class="input-box">
+                <label>密码</label>
+                <input type="password" id="password"/>
+                <div id="password-error" class="error-message"></div>
+                <div id="password-strength" class="password-strength">
+                    <div><span id="length-check">❌</span>8-16位密码</div>
+                    <div><span id="uppercase-check">❌</span>包含大写字母</div>
+                    <div><span id="number-check">❌</span>包含数字</div>
+                </div>
+            </div>
+            <div class="btn-box">
+                <button onclick="login()">登录</button>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            function login() {
+                        console.log("Logging in...");
+                        const username = document.getElementById('username').value;
+                        const password = document.getElementById('password').value;
+
+                        fetch('http://localhost:3000/login', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ username, password }),
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(data);
+                            if (data.message === "成功登录--OVO🏅") {
+                                window.location.href = 'index.html'; // 登录成功后跳转到主页
+                            } else {
+                                displayError('password', data.message);
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                            displayError('password', '登录失败，请重试');
+                        });
+                    }
+
+                    function checkPasswordStrength() {
+                        const password = document.getElementById('password').value;
+                        const lengthCheck = document.getElementById('length-check');
+                        const uppercaseCheck = document.getElementById('uppercase-check');
+                        const numberCheck = document.getElementById('number-check');
+
+                        const hasLength = password.length >= 8;
+                        const hasUppercase = /[A-Z]/.test(password);
+                        const hasNumber = /\d/.test(password);
+
+                        lengthCheck.textContent = hasLength ? '✅' : '❌';
+                        uppercaseCheck.textContent = hasUppercase ? '✅' : '❌';
+                        numberCheck.textContent = hasNumber ? '✅' : '❌';
+                    }
+
+                    document.getElementById('password').addEventListener('input', checkPasswordStrength);
+                    function displayError(field, message) {
+                        const errorElement = document.getElementById(`${field}-error`);
+                        errorElement.textContent = message;
+                    }
+                    const backgrounds = [
+                        "image/bg2.jpg",
+                        "image/bg3.jpg",
+                        "image/bg4.jpg",
+                        "image/bg5.jpg",
+                        "image/bg6.jpg",
+                    ];
+
+                    const body = document.body;
+
+                    function changeBackground() {
+                        const randomIndex = Math.floor(Math.random() * backgrounds.length);
+                        body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
+                    }
+
+                    window.onload = changeBackground;
+
+        </script>
+    </body>
+    </html>

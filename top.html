@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>班级德行分排行榜</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        #app {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        .rank-item {
+            padding: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .rank-item:last-child {
+            border-bottom: none;
+        }
+        .rank-item p {
+            margin: 5px 0;
+        }
+        .title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .score {
+            color: #409EFF;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-card class="box-card">
+            <div slot="header">
+                <span>班级德行分排行榜</span>
+            </div>
+            <div class="rank-item" v-for="(student, index) in students" :key="student.name">
+                <p class="title">{{ index + 1 }}. {{ student.name }}</p>
+                <p class="score">德行分: {{ student.score }}</p>
+            </div>
+        </el-card>
+    </div>
+
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    students: [
+                        { name: '张三', score: 95 },
+                        { name: '李四', score: 88 },
+                        { name: '王五', score: 92 },
+                        { name: '赵六', score: 85 },
+                        { name: '孙七', score: 90 },
+                        // 更多学生数据...
+                    ]
+                };
+            }
+        });
+    </script>
+</body>
+</html>

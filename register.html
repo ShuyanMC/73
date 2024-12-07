@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="box">
+        <h2>注册</h2>
+        <div class="input-box">
+            <label>账号</label>
+            <input type="text" id="username"/>
+            <div id="username-error" class="error-message"></div>
+        </div>
+        <div class="input-box">
+            <label>密码</label>
+            <input type="password" id="password"/>
+            <div id="password-error" class="error-message"></div>
+            <div id="password-strength" class="password-strength">
+                <div><span id="length-check">❌</span>8-16位密码</div>
+                <div><span id="uppercase-check">❌</span>包含大写字母</div>
+                <div><span id="number-check">❌</span>包含数字</div>
+            </div>
+        </div>
+        <div class="input-box">
+            <label>QQ号</label>
+            <input type="text" id="qq"/>
+            <div id="qq-error" class="error-message"></div>
+        </div>
+        <div class="input-box">
+            <label>邮箱</label>
+            <input type="email" id="email"/>
+            <div id="email-error" class="error-message"></div>
+        </div>
+        <div class="btn-box">
+            <button onclick="register()">注册</button>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+        const backgrounds = [
+                   "image/bg2.jpg",
+                   "image/bg3.jpg",
+                   "image/bg4.jpg",
+                   "image/bg5.jpg",
+                   "image/bg6.jpg",
+               ];
+
+               // 获取背景图元素
+               const body = document.body;
+
+               // 切换背景图的函数
+               function changeBackground() {
+                   const randomIndex = Math.floor(Math.random() * backgrounds.length);
+                   body.style.backgroundImage = `url(${backgrounds[randomIndex]})`;
+               }
+
+               // 页面加载时切换背景图
+               window.onload = changeBackground;
+
+        function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const qq = document.getElementById('qq').value;
+            const email = document.getElementById('email').value;
+            fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password, qq, email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "注册成功--OVO🏅") {
+                    window.location.href = 'login.html'; // 注册成功后跳转到登录页面
+                } else {
+                    displayError(data.field, data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+        
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const lengthCheck = document.getElementById('length-check');
+            const uppercaseCheck = document.getElementById('uppercase-check');
+            const numberCheck = document.getElementById('number-check');
+            
+            const hasLength = password.length >= 8;
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            
+            lengthCheck.textContent = hasLength ? '✅' : '❌';
+            uppercaseCheck.textContent = hasUppercase ? '✅' : '❌';
+            numberCheck.textContent = hasNumber ? '✅' : '❌';
+        }
+        
+        document.getElementById('password').addEventListener('input', checkPasswordStrength);
+        function displayError(field, message) {
+            const errorElement = document.getElementById(`${field}-error`);
+            errorElement.textContent = message;
+        }
+    </script>
+</body> </html>

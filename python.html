@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Python</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0; /* 灰白色背景 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .content {
+        width: 80%;
+        background-color: #ffffff;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .progress {
+        width: 80%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 20px;
+      }
+      .next-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .next-button:hover {
+        background-color: #45a049;
+      }
+  .section {
+    display: none;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="content">
+  <h2>Learn Python</h2>
+  <button class="next-button" onclick="showSection(1)">Start Learning</button>
+
+  <!-- Section 1: Introduction to Python -->
+  <div id="section1" class="section">
+    <h3>Introduction to Python</h3>
+    <p>Python is a high-level, interpreted, and general-purpose dynamic programming language that is known for its easy readability and简洁的语法。</p>
+    <!-- Add more content as needed -->
+    <button class="next-button" onclick="showSection(2)">Next Chapter</button>
+  </div>
+  
+  <!-- Section 2: Basics -->
+  <div id="section2" class="section">
+    <h3>Basics</h3>
+    <p>Start with the basics of Python, including variables, data types, and operators.</p>
+    <!-- Add more content as needed -->
+    <button class="next-button" onclick="showSection(3)">Next Chapter</button>
+  </div>
+  
+  <!-- Section 3: Control Flow -->
+  <div id="section3" class="section">
+    <h3>Control Flow</h3>
+    <p>Learn about conditional statements and loops in Python.</p>
+    <!-- Add more content as needed -->
+    <button class="next-button" onclick="showSection(4)">Next Chapter</button>
+  </div>
+  
+  <div id="section4" class="section">
+    <h3>学习Print命令</h3>
+    <p>LP:如果你要在屏幕上打印出Hello World! ,就输入这些代码：print("Hello World!")</p>
+    <p>同理！把引号里的字符串变一下就可以打印出其他东西！你甚至可以在单片机（如你的计算器！）的屏幕上打印出一篇小说！</p>
+    <!-- Add more content as needed -->
+    <button class="next-button" onclick="showSection(5)">Next Chapter</button>
+  </div>
+  <!-- Add more sections as needed -->
+</div>
+
+<script>
+  let currentSection = 1;
+
+  function showSection(sectionNumber) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Show the requested section
+    const sectionToDisplay = document.getElementById(`section${sectionNumber}`);
+    sectionToDisplay.style.display = 'block';
+
+    // Update current section
+    currentSection = sectionNumber;
+  }
+</script>
+
+</body>
+</html>

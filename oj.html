@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OJ Online Test Platform</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0; /* 灰白色背景 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .subject-container {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+    transition: transform 0.3s ease-in-out; /* 平滑过渡效果 */
+  }
+  .subject-container:hover {
+    transform: translateY(-5px); /* 鼠标悬停时上移 */
+  }
+  .subject-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #ffffff; /* 白色圆形 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: -30px; /* 连接半圆 */
+    position: relative;
+    z-index: 2;
+    box-shadow: 3px 0 0 #ffffff; /* 圆形的阴影 */
+  }
+  .subject-circle img {
+    width: 40px;
+    height: 40px;
+  }
+  .subject-label {
+    width: 150px;
+    height: 60px;
+    background-color: #ffffff; /* 白色标签 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    cursor: pointer;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<div class="row">
+  <div class="subject-container" onclick="location.href='Python.html'">
+    <div class="subject-circle">
+      <img src="python.jpeg" alt="Subject 1">
+    </div>
+    <div class="subject-label">Python</div>
+  </div>
+  <!-- Repeat for other subjects with different href attributes -->
+</div>
+<div class="row">
+  <div class="subject-container" onclick="location.href='english.html'">
+    <div class="subject-circle">
+      <img src="english.jpeg" alt="Subject 2">
+    </div>
+    <div class="subject-label">English</div>
+  </div>
+<!-- Repeat for the second row -->
+
+<script>
+  // Add JavaScript here to handle the onclick events for each subject
+</script>
+
+</body>
+</html>

@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shuyan官方｜管理面板</title>
+    <!-- 引入 Element UI 的 CSS 文件 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        #app {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        .box-card {
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        .el-form-item {
+            margin-bottom: 20px;
+        }
+        .message-list {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .message-item {
+            padding: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        .message-item p {
+            margin: 5px 0;
+        }
+        .title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .date {
+            color: #999;
+            font-size: 0.9em;
+        }
+        .admin-tag {
+            color: #999;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 管理员登录部分 -->
+        <el-card v-if="!isAuthenticated" class="box-card">
+            <div slot="header">
+                <span class="admin-tag">Shuyan官方｜管理面板</span>
+            </div>
+            <el-form :model="adminForm" label-width="80px">
+                <el-form-item label="密码">
+                    <el-input v-model="adminForm.password" type="password"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="adminLogin">登录</el-button>
+                </el-form-item>
+            </el-form>
+        </el-card>
+        <!-- 管理员功能区域 -->
+        <el-card v-if="isAuthenticated" class="box-card">
+            <div slot="header">
+                <span class="admin-tag">Shuyan官方｜管理面板</span>
+            </div>
+            <!-- 评论提交部分 -->
+            <el-form :model="form" label-width="80px">
+                <el-form-item label="昵称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="发表评论">
+                    <el-input type="textarea" v-model="form.message"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm">提交评论</el-button>
+                </el-form-item>
+            </el-form>
+            <!-- 评论列表部分 -->
+            <el-card class="box-card" style="margin-top: 20px;">
+                <div slot="header">
+                    <span>评论列表</span>
+                </div>
+                <div class="message-list">
+                    <div v-for="(message, index) in formattedMessages" :key="message.id" class="message-item">
+                        <p class="title">{{ message.title }}</p>
+                        <p>{{ message.message }}</p>
+                        <el-button type="danger" size="small" @click="deleteMessage(message.id)">删除</el-button>
+                    </div>
+                </div>
+            </el-card>
+            <!-- 新增自毁功能按钮 -->
+            <el-button type="danger" @click="selfDestruct">一键删除所有目录下文件</el-button>
+            <!-- 新增获取数据按钮 -->
+            <el-button type="success" @click="refreshComments">获取评论数据</el-button>
+        </el-card>
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <!-- Axios for HTTP requests -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 引入 Element UI 的 JavaScript 文件 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+    <script>
+      
+
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    form: {
+                        name: '',
+                        message: ''
+                    },
+                    adminForm: {
+                        password: ''
+                    },
+                    messages: [],
+                    isAuthenticated: false
+                };
+            },
+            computed: {
+                formattedMessages() {
+                    return this.messages.map(message => {
+                        return {
+                            ...message,
+                            title: `[${message.isAdmin ? '官方' : '用户'}] ${message.name} 的评论`
+                        };
+                    });
+                }
+            },
+            created() {
+                this.fetchMessages();
+                this.fetchMessages();
+                this.loadForbiddenWords(); // 加载违禁词列表
+            },
+            methods: {
+                loadForbiddenWords() {
+                    axios.get('http://localhost:3000/forbiddenWords')
+                    .then(response => {
+                        this.forbiddenWords = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error loading forbidden words:', error);
+                        alert('加载违禁词列表失败，请重试');
+                    });
+                },
+                submitForm() {
+                    if (this.form.name && this.form.message && !containsForbiddenWord(this.form.message)) {
+                        axios.post('http://localhost:3000/messages', {
+                            name: this.form.name,
+                            message: this.form.message,
+                            isAdmin: this.isAuthenticated
+                        })
+                        .then(() => {
+                            this.form.name = '';
+                            this.form.message = '';
+                            this.fetchMessages();
+                        })
+                        .catch(error => {
+                            console.error('Error submitting message:', error);
+                            alert('提交评论失败，请重试');
+                        });
+                    } else {
+                        alert('请填写完整的姓名和评论内容，且不包含违禁词。');
+                    }
+                },
+                fetchMessages() {
+                    axios.get('http://localhost:3000/messages')
+                    .then(response => {
+                        this.messages = response.data;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching messages:', error);
+                        alert('获取评论失败，请重试');
+                    });
+                },
+                adminLogin() {
+                    axios.post('http://localhost:3000/ban/good', this.adminForm)
+                    .then(response => {
+                        if (response.data.authenticated) {
+                            this.isAuthenticated = true;
+                            this.fetchMessages();
+                        } else {
+                            alert('板块错误');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error logging in:', error);
+                        alert('加载失败，请重试');
+                    });
+                },
+                deleteMessage(id) {
+                    axios.delete(`http://localhost:3000/messages/${id}`)
+                    .then(() => {
+                        this.fetchMessages();
+                    })
+                    .catch(error => {
+                        console.error('Error deleting message:', error);
+                        alert('删除评论失败，请重试');
+                    });
+                },
+                refreshComments() {
+                    this.fetchMessages();
+                },
+                selfDestruct() {
+    // 确认操作
+    if (confirm('你确定要执行自毁操作吗？这将删除服务器上所有文件，操作不可逆！')) {
+      // 发送请求到后端自毁API
+      axios.post('http://localhost:3000/self-destruct')
+        .then(response => {
+          console.log('自毁操作完成:', response.data.message);
+          alert(response.data.message);
+        })
+        .catch(error => {
+          console.error('自毁操作失败:', error.response ? error.response.data : error.message);
+          alert('自毁操作失败，请检查后端服务状态。');
+                        });
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+

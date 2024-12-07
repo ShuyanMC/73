@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Quiz - Print Command</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0; /* 灰白色背景 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .quiz-container {
+        width: 80%;
+        background-color: #ffffff;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .question {
+        margin-bottom: 20px;
+      }
+      .question h3 {
+        margin-bottom: 10px;
+      }
+      .options {
+        list-style: none;
+        padding: 0;
+      }
+      .options li {
+        margin-bottom: 10px;
+        cursor: pointer;
+      }
+      .options li:hover {
+        color: #4CAF50;
+      }
+      .next-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+      .next-button:hover {
+        background-color: #45a049;
+      }
+  .timer {
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div id="quiz"></div>
+  <div class="timer">倒计时: <span id="timer">600</span> 秒</div>
+  <button class="next-button" onclick="nextQuestion()">下一题</button>
+</div>
+
+<script>
+  const quizData = [
+    {
+      question: "以下哪个命令可以在Python中打印出'Hello, World!'？",
+      options: ["hello('Hello, World!')", "print('Hello, World!')", "display('Hello, World!')", "show('Hello, World!')"],
+      answer: 1
+    },
+    {
+      question: "如果你想要打印多个字符串，你应该使用什么方法？",
+      options: ["concat()", "join()", "add()", "print()"],
+      answer: 1
+    },
+    {
+      question: "以下哪个选项可以正确地打印出变量的值？",
+      options: ["show(x)", "print(x)", "display(x)", "view(x)"],
+      answer: 1
+    },
+    {
+      question: "如何打印出换行？",
+      options: ["print(' ')", "print('')", "print('\n')", "print('newline')"],
+      answer: 2
+    },
+    {
+      question: "如果你想要打印出格式化的字符串，例如'Name: %s, Age: %d' % ('Alice', 30)，应该使用什么函数？",
+      options: ["format()", "f-string", "sprintf()", "print()"],
+      answer: 3
+    },
+    {
+      question: "以下哪个命令可以打印出变量x和y的和？",
+      options: ["print(x + y)", "show(x, y)", "display(x + y)", "print(x, y)"],
+      answer: 0
+    },
+    {
+      question: "如何打印出不可见的换行符？",
+      options: ["print('\n')", "print('line break')", "print('<br/>')", "print('new line')"],
+      answer: 0
+    },
+    {
+      question: "以下哪个命令可以打印出'Hello, World!'并在后面添加一个换行符？",
+      options: ["print('Hello, World!')", "print('Hello, World!', end=' ')", "print('Hello, World!', end='\\n')", "print('Hello, World!', end=';')"],
+      answer: 2
+    }
+    // Add more questions here
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+  let timeRemaining = 600; // 10 minutes in seconds
+
+  function loadQuestion() {
+    const quizDiv = document.getElementById('quiz');
+    const question = quizData[currentQuestion];
+    quizDiv.innerHTML = `<h3>${question.question}</h3><ul class="options">`;
+
+    question.options.forEach((option, index) => {
+      quizDiv.innerHTML += `<li onclick="checkAnswer(${index})">${option}</li>`;
+    });
+
+    quizDiv.innerHTML += `</ul>`;
+  }
+
+  function checkAnswer(optionIndex) {
+    if (optionIndex === quizData[currentQuestion].answer) {
+      score++;
+    }
+
+    currentQuestion++;
+    updateTimer();
+    if (currentQuestion < quizData.length) {
+      loadQuestion();
+    } else {
+      endQuiz();
+    }
+  }
+
+  function nextQuestion() {
+    checkAnswer(-1); // -1 indicates that the user skipped the question
+  }
+
+  function updateTimer() {
+    timeRemaining--;
+    document.getElementById('timer').textContent = timeRemaining;
+    if (timeRemaining <= 0) {
+      endQuiz();
+    }
+  }
+    function endQuiz() {
+      alert(`John：测验完成辣! 你的分数: ${score}/${quizData.length}. 你的正确率: ${(score / quizData.length * 100).toFixed(2)}%`);
+      clearInterval(timerInterval);
+      // Redirect to python.html after the alert is dismissed
+      window.location.href = 'python.html';
+    }
+
+  function startQuiz() {
+    loadQuestion();
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+
+  startQuiz();
+</script>
+
+</body>
+</html>

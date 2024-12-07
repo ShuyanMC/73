@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点单/评论系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 引入 Element UI 的 JavaScript 文件 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    
+    <style>
+        /* 保持原有的CSS样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+        #app {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        .box-card {
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        }
+        .el-form-item {
+            margin-bottom: 20px;
+        }
+        .message-list {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .message-item {
+            padding: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .message-item:last-child {
+            border-bottom: none;
+        }
+        .message-item p {
+            margin: 5px 0;
+        }
+        .title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .date {
+            color: #999;
+            font-size: 0.9em;
+        }
+        .admin-tag {
+            color: #413259;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 管理员登录部分 -->
+        <el-card v-if="!isAuthenticated" class="box-card">
+            <div slot="header">
+                <span class="admin-tag">Shuyan</span>
+            </div>
+            <el-form :model="adminForm" label-width="80px">
+                <el-form-item label="验证码：">
+                    <el-input v-model="adminForm.password" type="text" ></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <h3>验证码: {{ captcha }}</h3>
+                    <el-button type="primary" @click="adminLogin">进入</el-button>
+                </el-form-item>
+            </el-form>
+        </el-card>
+        <!-- 管理员功能区域 -->
+        <el-card v-if="isAuthenticated" class="box-card">
+            <div slot="header">
+                <span>讨论</span>
+            </div>
+            <!-- 评论提交部分 -->
+            <el-form :model="form" label-width="80px">
+                <el-form-item label="昵称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="内容">
+                    <el-input type="textarea" v-model="form.message"></el-input>
+                </el-form-item>
+                <el-form-item label="ID">
+                    <el-input v-model="form.orderId"></el-input>
+                </el-form-item> <!-- 新增订单ID输入框 -->
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm">提交</el-button>
+                </el-form-item>
+            </el-form>
+
+            <!-- 评论列表部分 -->
+            <el-card class="box-card" style="margin-top: 20px;">
+                <div slot="header">
+                    <span>列表</span>
+                </div>
+                <div class="message-list">
+                    <div v-for="(message, index) in formattedMessages" :key="message.id" class="message-item">
+                        <p class="title">
+                            {{ message.name }}:
+                        </p>
+                        <!-- 直接显示用户名，不带任何称号 -->
+                        <p>{{ message.message }}</p>
+                        <p class="date">ID: {{ message.orderId }}</p> <!-- 显示订单ID -->
+                    </div>
+                </div>
+            </el-card>
+
+            <!-- 新增获取数据按钮 -->
+            <div>
+                <el-button type="success" @click="refreshComments">获取数据</el-button>
+            </div>
+        </el-card>
+    </div>
+
+    <script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                form: {
+                    name: '',
+                    message: '',
+                    orderId: ''
+                },
+                adminForm: {
+                    password: ''
+                },
+                messages: [],
+                isAuthenticated: false,
+                captcha: '',
+                forbiddenWords: [] // 初始化违禁词列表为空数组
+            };
+        },
+        created() {
+            this.fetchCaptcha();
+            this.fetchMessages();
+            this.loadForbiddenWords(); // 加载违禁词列表
+        },
+        methods: {
+            // 加载违禁词列表
+            loadForbiddenWords() {
+                axios.get('http://localhost:3000/forbiddenWords')
+                .then(response => {
+                    this.forbiddenWords = response.data;
+                })
+                .catch(error => {
+                    console.error('Error loading forbidden words:', error);
+                    alert('加载违禁词列表失败，请重试');
+                });
+            },
+            // 提交评论
+            submitForm() {
+                if (this.form.name && this.form.message && this.form.orderId) {
+                    if (this.forbiddenWords.some(word => this.form.message.includes(word))) {
+                        alert('评论内容包含违禁词，请重新输入！');
+                        return;
+                    }
+
+                    axios.post('http://localhost:3000/messages', { name: this.form.name, message: this.form.message, isAdmin: this.isAuthenticated, orderId: this.form.orderId })
+                    .then(response => {
+                        this.form.name = '';
+                        this.form.message = '';
+                        this.form.orderId = '';
+                        this.fetchMessages();
+                    })
+                    .catch(error => {
+                        console.error('Error submitting message:', error);
+                        alert('提交评论失败，请重试');
+                    });
+                } else {
+                    alert('请填写完整的姓名、评论内容和订单ID');
+                }
+            },
+            // 获取消息
+            fetchMessages() {
+                axios.get('http://localhost:3000/messages')
+                .then(response => {
+                    this.messages = response.data;
+                })
+                .catch(error => {
+                    console.error('Error fetching messages:', error);
+                    alert('获取评论失败，请重试');
+                });
+            },
+            // 管理员登录
+            adminLogin() {
+                axios.post('http://localhost:3000/verifyCaptcha', { captcha: this.adminForm.password })
+                .then(response => {
+                    if (response.data.verified) {
+                        this.isAuthenticated = true;
+                        this.fetchMessages();
+                    } else {
+                        alert('验证码错误');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying captcha:', error);
+                    alert('验证码验证失败');
+                });
+            },
+            // 从后端获取验证码
+            fetchCaptcha() {
+                axios.get('http://localhost:3000/captcha')
+                .then(response => {
+                    this.captcha = response.data.captcha;
+                })
+                .catch(error => {
+                    console.error('Error fetching captcha:', error);
+                    alert('获取验证码失败，请重试');
+                });
+            },
+            // 新增方法，用于刷新评论区数据
+            refreshComments() {
+                this.fetchMessages();
+            }
+        },
+        computed: {
+            formattedMessages() {
+                return this.messages;
+            }
+        }
+    });
+    </script>
+<a href="https://ipw.cn/ipv6webcheck/?site=cn.hk.zream1.hayfrp.ink" title="本站支持IPv6访问" target='_blank'><img style='display:inline-block;vertical-align:middle' alt="本站支持IPv6访问" src="ipv6-s1.svg"></a>
+</body>
+</html>
